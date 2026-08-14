@@ -35,15 +35,13 @@ if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || (isset($_SERVER['HTTP
     $app->useStoragePath('/tmp/storage');
 }
 
-$app->booting(function ($app) {
-    $driver = $app['config']->get('app.maintenance.driver');
-    if (empty($driver)) {
-        $app['config']->set('app.maintenance.driver', 'file');
-    }
-    $store = $app['config']->get('app.maintenance.store');
-    if (empty($store)) {
-        $app['config']->set('app.maintenance.store', 'array');
-    }
+$app->singleton(\Illuminate\Foundation\MaintenanceModeManager::class, function ($app) {
+    return new class($app) extends \Illuminate\Foundation\MaintenanceModeManager {
+        public function getDefaultDriver(): string
+        {
+            return 'file';
+        }
+    };
 });
 
 return $app;
