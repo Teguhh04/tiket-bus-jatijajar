@@ -1,13 +1,13 @@
 <?php
 
-// Ensure all required writable directories exist in /tmp
+// Prepare writable /tmp/storage folder structure for Vercel Serverless
+$tmpStorage = '/tmp/storage';
 $dirs = [
-    '/tmp/storage/framework/views',
-    '/tmp/storage/framework/cache/data',
-    '/tmp/storage/framework/sessions',
-    '/tmp/storage/bootstrap/cache',
-    '/tmp/storage/logs',
-    '/tmp/framework/views',
+    $tmpStorage . '/framework/views',
+    $tmpStorage . '/framework/cache/data',
+    $tmpStorage . '/framework/sessions',
+    $tmpStorage . '/bootstrap/cache',
+    $tmpStorage . '/logs',
 ];
 
 foreach ($dirs as $dir) {
@@ -16,12 +16,33 @@ foreach ($dirs as $dir) {
     }
 }
 
-// Force view compiled path & log channel
-putenv('VIEW_COMPILED_PATH=/tmp/framework/views');
-$_ENV['VIEW_COMPILED_PATH'] = '/tmp/framework/views';
-$_SERVER['VIEW_COMPILED_PATH'] = '/tmp/framework/views';
-
+// Force environment settings
+putenv('APP_ENV=production');
+putenv('APP_DEBUG=true');
 putenv('LOG_CHANNEL=stderr');
-$_ENV['LOG_CHANNEL'] = 'stderr';
+putenv('SESSION_DRIVER=file');
+putenv('CACHE_STORE=array');
 
-require __DIR__ . '/../public/index.php';
+$_ENV['APP_ENV'] = 'production';
+$_ENV['APP_DEBUG'] = 'true';
+$_ENV['LOG_CHANNEL'] = 'stderr';
+$_ENV['SESSION_DRIVER'] = 'file';
+$_ENV['CACHE_STORE'] = 'array';
+
+$_SERVER['APP_ENV'] = 'production';
+$_SERVER['APP_DEBUG'] = 'true';
+$_SERVER['LOG_CHANNEL'] = 'stderr';
+$_SERVER['SESSION_DRIVER'] = 'file';
+$_SERVER['CACHE_STORE'] = 'array';
+
+try {
+    require __DIR__ . '/../public/index.php';
+} catch (\Throwable $e) {
+    header("HTTP/1.1 200 OK");
+    echo "<div style='font-family: sans-serif; padding: 20px; background: #fff; color: #111;'>";
+    echo "<h2 style='color: #e53e3e;'>Laravel Serverless Error</h2>";
+    echo "<p><strong>Message:</strong> " . htmlspecialchars($e->getMessage()) . "</p>";
+    echo "<p><strong>File:</strong> " . htmlspecialchars($e->getFile()) . " (line " . $e->getLine() . ")</p>";
+    echo "<pre style='background: #f7fafc; padding: 15px; border-radius: 8px; overflow: auto;'>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
+    echo "</div>";
+}
