@@ -36,8 +36,14 @@ if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || (isset($_SERVER['HTTP
 }
 
 $app->booting(function ($app) {
-    $app['config']->set('app.maintenance.driver', 'file');
-    $app['config']->set('app.maintenance.store', 'array');
+    $driver = $app['config']->get('app.maintenance.driver');
+    if (empty($driver)) {
+        $app['config']->set('app.maintenance.driver', 'file');
+    }
+    $store = $app['config']->get('app.maintenance.store');
+    if (empty($store)) {
+        $app['config']->set('app.maintenance.store', 'array');
+    }
 });
 
 return $app;
