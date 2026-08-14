@@ -25,20 +25,26 @@ foreach ($dirs as $dir) {
 putenv('APP_ENV=production');
 putenv('APP_DEBUG=true');
 putenv('LOG_CHANNEL=stderr');
-putenv('SESSION_DRIVER=file');
+putenv('SESSION_DRIVER=cookie');
 putenv('CACHE_STORE=array');
+putenv('APP_MAINTENANCE_DRIVER=file');
+putenv('APP_MAINTENANCE_STORE=array');
 
 $_ENV['APP_ENV'] = 'production';
 $_ENV['APP_DEBUG'] = 'true';
 $_ENV['LOG_CHANNEL'] = 'stderr';
-$_ENV['SESSION_DRIVER'] = 'file';
+$_ENV['SESSION_DRIVER'] = 'cookie';
 $_ENV['CACHE_STORE'] = 'array';
+$_ENV['APP_MAINTENANCE_DRIVER'] = 'file';
+$_ENV['APP_MAINTENANCE_STORE'] = 'array';
 
 $_SERVER['APP_ENV'] = 'production';
 $_SERVER['APP_DEBUG'] = 'true';
 $_SERVER['LOG_CHANNEL'] = 'stderr';
-$_SERVER['SESSION_DRIVER'] = 'file';
+$_SERVER['SESSION_DRIVER'] = 'cookie';
 $_SERVER['CACHE_STORE'] = 'array';
+$_SERVER['APP_MAINTENANCE_DRIVER'] = 'file';
+$_SERVER['APP_MAINTENANCE_STORE'] = 'array';
 
 try {
     require __DIR__ . '/../public/index.php';
