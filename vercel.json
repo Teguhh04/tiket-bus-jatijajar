@@ -1,9 +1,8 @@
 {
     "version": 2,
-    "buildCommand": "echo 'Build skipped'",
     "functions": {
         "api/index.php": {
-            "runtime": "vercel-php@0.7.3"
+            "runtime": "vercel-php@0.6.0"
         }
     },
     "routes": [
@@ -21,6 +20,7 @@
         }
     ],
     "env": {
+        "COMPOSER_FLAGS": "--no-dev --prefer-dist --optimize-autoloader --no-scripts",
         "APP_ENV": "production",
         "APP_KEY": "base64:KdlkRgEPO+GV9Kp7CFF0xTVZlRHe0qCCrtv3bTOj6Ag=",
         "APP_DEBUG": "true",
