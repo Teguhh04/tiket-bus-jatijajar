@@ -35,4 +35,8 @@ if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || (isset($_SERVER['HTTP
     $app->useStoragePath('/tmp/storage');
 }
 
+$app->singleton(\Illuminate\Contracts\Foundation\MaintenanceMode::class, function () {
+    return new \Illuminate\Foundation\FileBasedMaintenanceMode();
+});
+
 return $app;
