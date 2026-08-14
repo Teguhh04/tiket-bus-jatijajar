@@ -19,12 +19,12 @@ foreach ($dirs as $dir) {
     }
 }
 
-// Copy manifest files to /tmp/bootstrap/cache if they exist
+// Always sync clean base manifest files to /tmp/bootstrap/cache (overwrite stale warm container files)
 $baseCache = __DIR__ . '/../bootstrap/cache';
-if (file_exists($baseCache . '/packages.php') && !file_exists($tmpCache . '/packages.php')) {
+if (file_exists($baseCache . '/packages.php')) {
     @copy($baseCache . '/packages.php', $tmpCache . '/packages.php');
 }
-if (file_exists($baseCache . '/services.php') && !file_exists($tmpCache . '/services.php')) {
+if (file_exists($baseCache . '/services.php')) {
     @copy($baseCache . '/services.php', $tmpCache . '/services.php');
 }
 
