@@ -2,17 +2,17 @@
 
 @section('content')
 <!-- Hero -->
-<section class="hero-section pt-16">
+<section class="hero-section pt-16 min-h-[420px] sm:min-h-[520px]">
     <!-- Terminal Building Image -->
     <div class="hidden md:block absolute top-0 right-0 bottom-0 w-[55%] overflow-hidden">
         <img src="{{ asset('images/terminal-building.jpg') }}" alt="Terminal Tipe A Jatijajar Kota Depok" class="w-full h-full object-cover opacity-85">
         <div class="absolute inset-0" style="background: linear-gradient(to right, #1e2a78 0%, transparent 50%);"></div>
     </div>
-    <div class="max-w-7xl mx-auto px-8 py-20 relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-12 sm:py-20 relative z-10">
         <p class="text-yellow-400 text-xs sm:text-sm font-bold tracking-widest mb-3 sm:mb-4 uppercase">Jatijajar Tiket Online</p>
         <h1 class="text-white text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-4 sm:mb-5 max-w-xl">Menghubungkan Perjalanan,<br>Mendekatkan Tujuan</h1>
         <p class="text-blue-200 text-sm sm:text-lg mb-8 sm:mb-10 max-w-md">Pesan tiket perjalanan Anda dengan mudah, cepat, dan aman.</p>
-        <div class="flex gap-4 mb-8">
+        <div class="flex flex-wrap gap-3 mb-6 sm:mb-8">
             <div class="hero-badge flex items-center gap-3">
                 <svg class="w-8 h-8 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                 <div><span class="font-bold text-white text-sm">Aman & Terpercaya</span><br><span class="text-blue-300 text-xs">Sistem terjamin</span></div>
@@ -150,9 +150,9 @@
 </div>
 
 <!-- Informasi Terminal -->
-<section class="max-w-7xl mx-auto px-8 py-20">
+<section class="max-w-7xl mx-auto px-4 sm:px-8 py-12 sm:py-20">
     <p class="text-center text-[#1e2a78] text-sm font-bold tracking-widest mb-2 uppercase">Informasi Terkini</p>
-    <h2 class="text-center text-3xl font-bold text-gray-800 mb-12">Pengumuman Terminal Jatijajar</h2>
+    <h2 class="text-center text-2xl sm:text-3xl font-bold text-gray-800 mb-8 sm:mb-12">Pengumuman Terminal Jatijajar</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="feature-card overflow-hidden !p-0 group cursor-pointer hover:shadow-lg transition">
             <div class="h-40 w-full overflow-hidden">
@@ -194,9 +194,9 @@
 </section>
 
 <!-- Cara Kerja -->
-<section class="max-w-7xl mx-auto px-8 pb-20">
+<section class="max-w-7xl mx-auto px-4 sm:px-8 pb-12 sm:pb-20">
     <p class="text-center text-[#1e2a78] text-sm font-bold tracking-widest mb-2">CARA KERJA</p>
-    <h2 class="text-center text-3xl font-bold text-gray-800 mb-14">Mudah dalam 3 Langkah</h2>
+    <h2 class="text-center text-2xl sm:text-3xl font-bold text-gray-800 mb-8 sm:mb-14">Mudah dalam 3 Langkah</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="step-card pt-8">
             <span class="step-number">1</span>

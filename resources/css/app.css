@@ -19,7 +19,13 @@
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 50%, #3b4cb8 100%);
     position: relative;
     overflow: hidden;
-    min-height: 520px;
+    min-height: 380px;
+}
+
+@media (min-width: 640px) {
+    .hero-section {
+        min-height: 520px;
+    }
 }
 
 .hero-section::before {
