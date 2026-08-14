@@ -23,18 +23,20 @@
     ],
     "env": {
         "COMPOSER_FLAGS": "--no-dev --prefer-dist --optimize-autoloader --no-scripts",
+        "VERCEL": "1",
         "APP_ENV": "production",
         "APP_KEY": "base64:KdlkRgEPO+GV9Kp7CFF0xTVZlRHe0qCCrtv3bTOj6Ag=",
         "APP_DEBUG": "true",
+        "LOG_CHANNEL": "stderr",
+        "LOG_STACK": "stderr",
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
         "APP_PACKAGES_CACHE": "/tmp/packages.php",
         "APP_ROUTES_CACHE": "/tmp/routes.php",
         "APP_SERVICES_CACHE": "/tmp/services.php",
-        "VIEW_COMPILED_PATH": "/tmp",
+        "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
         "CACHE_STORE": "array",
         "SESSION_DRIVER": "cookie",
-        "QUEUE_CONNECTION": "sync",
-        "LOG_CHANNEL": "stderr"
+        "QUEUE_CONNECTION": "sync"
     }
 }
