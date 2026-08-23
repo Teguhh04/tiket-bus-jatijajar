@@ -48,66 +48,89 @@
                 </div>
             </div>
 
-            <div class="p-8 space-y-8">
-                <!-- Payment Code Section -->
-                <div class="bg-gray-50 rounded-2xl p-6 border border-dashed border-gray-200">
-                    <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
-                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Metode: BCA (VA & QRIS)</span>
+            <div class="p-6 sm:p-8 space-y-8">
+                <!-- Real Bank Account & QRIS Section -->
+                @php
+                    $bankName = config('payment.bank_name', 'Bank BCA');
+                    $accountNumber = config('payment.account_number', '1234 5678 9012');
+                    $accountName = config('payment.account_name', 'PT JATIJAJAR TIKET ONLINE');
+                    $qrisImg = asset(config('payment.qris_image', 'images/qris_rekening.png'));
+                @endphp
+
+                <div class="bg-slate-50 rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm">
+                    <div class="flex justify-between items-center mb-6 border-b border-slate-200 pb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 bg-green-500 rounded-full animate-ping"></span>
+                            <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Rekening Resmi & QRIS</span>
+                        </div>
                         <div class="flex gap-2 items-center">
-                            <div class="text-[#1e2a78] font-bold text-sm italic">BCA</div>
-                            <div class="text-[#ed3237] font-bold text-sm italic border-l border-gray-300 pl-2">QRIS</div>
+                            <span class="px-2.5 py-1 bg-blue-100 text-[#1e2a78] font-black text-xs rounded-lg uppercase tracking-wider">{{ $bankName }}</span>
+                            <span class="px-2.5 py-1 bg-red-100 text-red-600 font-black text-xs rounded-lg uppercase tracking-wider">QRIS ALL PAYMENT</span>
                         </div>
                     </div>
                     
-                    <div class="flex flex-col md:flex-row gap-6 items-center justify-between">
-                        <!-- Virtual Account -->
-                        <div class="flex-1 w-full text-center md:text-left">
-                            <p class="text-[10px] text-gray-400 uppercase font-bold mb-2">Nomor Virtual Account BCA</p>
-                            <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3 sm:gap-4">
-                                <span class="text-lg sm:text-2xl font-black text-[#1e2a78] tracking-wider break-all px-2" id="payment-code">{{ $paymentCode }}</span>
-                                <button type="button" onclick="copyToClipboard()" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg text-xs font-bold text-blue-600 transition flex items-center gap-1 border border-blue-100 flex-shrink-0">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-                                    Salin
-                                </button>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <!-- OPSI 1: Transfer Bank Manual / M-Banking -->
+                        <div class="space-y-4 text-center md:text-left bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                            <div class="flex items-center gap-2 justify-center md:justify-start text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                                Transfer Bank (M-Banking / ATM)
                             </div>
-                            <p class="text-[10px] text-gray-500 mt-2">Bisa dibayar dari BCA Mobile, KlikBCA, atau ATM BCA.</p>
+                            
+                            <div>
+                                <p class="text-[11px] text-slate-400 font-medium">Bank Tujuan:</p>
+                                <p class="text-base font-bold text-slate-800">{{ $bankName }}</p>
+                            </div>
+
+                            <div>
+                                <p class="text-[11px] text-slate-400 font-medium">Nomor Rekening:</p>
+                                <div class="flex items-center justify-center md:justify-start gap-3 mt-1">
+                                    <span class="text-xl sm:text-2xl font-black text-[#1e2a78] font-mono tracking-wider" id="payment-code">{{ $accountNumber }}</span>
+                                    <button type="button" onclick="copyToClipboard()" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl text-xs font-bold transition flex items-center gap-1 border border-blue-100">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                                        Salin
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="pt-1 border-t border-slate-100">
+                                <p class="text-[11px] text-slate-400 font-medium">Atas Nama (Pemilik):</p>
+                                <p class="text-sm font-bold text-slate-700 uppercase tracking-wide">{{ $accountName }}</p>
+                            </div>
                         </div>
 
-                        <!-- OR separator -->
-                        <div class="hidden md:flex flex-col items-center justify-center">
-                            <div class="h-8 w-px bg-gray-300"></div>
-                            <span class="text-[10px] font-bold text-gray-400 uppercase my-2">ATAU</span>
-                            <div class="h-8 w-px bg-gray-300"></div>
-                        </div>
-
-                        <!-- QRIS -->
-                        <div class="flex-shrink-0 text-center">
-                            <p class="text-[10px] text-gray-400 uppercase font-bold mb-2">Scan QRIS (OVO, GoPay, DANA, dll)</p>
-                            <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-200 inline-block">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $paymentCode }}&margin=10" alt="QRIS Code" class="w-[120px] h-[120px]">
+                        <!-- OPSI 2: QRIS Image Real -->
+                        <div class="text-center bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Scan Barcode QRIS Resmi</p>
+                            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 inline-block shadow-inner">
+                                <img src="{{ $qrisImg }}" alt="QRIS Resmi Rekening" class="w-44 h-44 object-contain rounded-xl shadow-sm bg-white p-1">
                             </div>
+                            <p class="text-[10px] text-slate-400 font-semibold mt-3">Dukungan: BCA Mobile, GoPay, OVO, DANA, ShopeePay, LinkAja, & All Bank</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Steps -->
-                <div class="space-y-4 text-sm text-gray-600">
-                    <h4 class="font-bold text-gray-800 mb-2">Cara Pembayaran:</h4>
-                    <div class="flex gap-4">
-                        <div class="w-6 h-6 rounded-full bg-[#1e2a78] text-white flex-shrink-0 flex items-center justify-center text-[10px] font-bold">1</div>
-                        <p>Buka aplikasi Mobile Banking / E-Wallet Anda (BCA Mobile, OVO, GoPay, DANA, dll).</p>
+                <div class="space-y-4 text-sm text-slate-600 bg-white p-6 rounded-2xl border border-slate-100">
+                    <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Panduan Langkah Pembayaran:
+                    </h4>
+                    <div class="flex gap-4 items-start">
+                        <div class="w-6 h-6 rounded-full bg-[#1e2a78] text-white flex-shrink-0 flex items-center justify-center text-xs font-bold mt-0.5">1</div>
+                        <p class="text-xs sm:text-sm">Buka aplikasi mobile banking Anda atau e-wallet (BCA Mobile, Livin, GoPay, OVO, DANA, dll).</p>
                     </div>
-                    <div class="flex gap-4">
-                        <div class="w-6 h-6 rounded-full bg-[#1e2a78] text-white flex-shrink-0 flex items-center justify-center text-[10px] font-bold">2</div>
-                        <p>Untuk VA: Pilih menu Transfer > Virtual Account dan masukkan kode <span class="font-bold text-gray-800">{{ $paymentCode }}</span>.</p>
+                    <div class="flex gap-4 items-start">
+                        <div class="w-6 h-6 rounded-full bg-[#1e2a78] text-white flex-shrink-0 flex items-center justify-center text-xs font-bold mt-0.5">2</div>
+                        <p class="text-xs sm:text-sm">Lakukan **Transfer Bank** ke rekening <span class="font-bold text-slate-800">{{ $bankName }} {{ $accountNumber }}</span> a.n. <span class="font-bold text-slate-800">{{ $accountName }}</span> OR **Scan QRIS** di atas.</p>
                     </div>
-                    <div class="flex gap-4">
-                        <div class="w-6 h-6 rounded-full bg-[#1e2a78] text-white flex-shrink-0 flex items-center justify-center text-[10px] font-bold">3</div>
-                        <p>Untuk QRIS: Pilih menu Scan QR / Bayar dan arahkan kamera ke gambar QRIS di atas.</p>
+                    <div class="flex gap-4 items-start">
+                        <div class="w-6 h-6 rounded-full bg-[#1e2a78] text-white flex-shrink-0 flex items-center justify-center text-xs font-bold mt-0.5">3</div>
+                        <p class="text-xs sm:text-sm">Pastikan nominal transfer sesuai persis dengan total tagihan: <span class="font-bold text-red-600 text-sm">Rp {{ number_format($booking->total_amount, 0, ',', '.') }}</span>.</p>
                     </div>
-                    <div class="flex gap-4">
-                        <div class="w-6 h-6 rounded-full bg-[#1e2a78] text-white flex-shrink-0 flex items-center justify-center text-[10px] font-bold">4</div>
-                        <p>Pastikan nominal sesuai dengan tagihan: <span class="font-bold text-gray-800">Rp {{ number_format($booking->total_amount, 0, ',', '.') }}</span>.</p>
+                    <div class="flex gap-4 items-start">
+                        <div class="w-6 h-6 rounded-full bg-[#1e2a78] text-white flex-shrink-0 flex items-center justify-center text-xs font-bold mt-0.5">4</div>
+                        <p class="text-xs sm:text-sm">Setelah transfer berhasil, unggah foto bukti transfer di bawah ini lalu klik tombol **"Konfirmasi & Terbitkan E-Tiket"**.</p>
                     </div>
                 </div>
             </div>

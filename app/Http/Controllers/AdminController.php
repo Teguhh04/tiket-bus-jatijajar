@@ -19,7 +19,7 @@ class AdminController extends Controller
             'total_bookings'   => Booking::count(),
             'total_revenue'    => Booking::where('status', 'lunas')->sum('total_amount'),
             'total_passengers' => Passenger::count(),
-            'active_trips'     => Trip::count(),
+            'active_trips'     => Trip::where('departure_time', '>=', $now->copy()->startOfDay())->count(),
             
             // Revenue Stats
             'revenue_today' => Booking::where('status', 'lunas')->whereDate('created_at', $now->toDateString())->sum('total_amount'),

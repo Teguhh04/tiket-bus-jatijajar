@@ -26,6 +26,14 @@ class TicketController extends Controller
                      ->where('available_seats', '>', 0)
                      ->where('departure_time', '>', now());
 
+        // Filter by origin
+        if ($origin) {
+            $query->whereHas('origin', function ($q) use ($origin) {
+                $q->where('name', 'like', "%{$origin}%")
+                  ->orWhere('city', 'like', "%{$origin}%");
+            });
+        }
+
         // Filter by destination
         if ($destination) {
             $query->whereHas('destination', function ($q) use ($destination) {
@@ -218,11 +226,11 @@ class TicketController extends Controller
         }
 
         $request->validate([
-            'payment_proof' => 'required|image|max:2048'
+            'payment_proof' => 'nullable|image|max:2048'
         ]);
 
         $updateData = [
-            'status' => 'menunggu_verifikasi' // Kembali ke admin verifikasi
+            'status' => 'menunggu_verifikasi'
         ];
 
         // Store payment proof image

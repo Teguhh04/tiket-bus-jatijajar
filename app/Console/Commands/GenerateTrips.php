@@ -46,7 +46,7 @@ class GenerateTrips extends Command
             $departureMinute = $template->departure_time->format('i');
             $durationMinutes = $template->departure_time->diffInMinutes($template->arrival_time);
 
-            for ($d = 1; $d <= 30; $d++) {
+            for ($d = 0; $d <= 30; $d++) {
                 $targetDeparture = $today->copy()
                     ->addDays($d)
                     ->setHour((int) $departureHour)

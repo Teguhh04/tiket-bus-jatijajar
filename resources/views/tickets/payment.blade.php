@@ -88,40 +88,35 @@
                 <input type="hidden" name="booking_id" value="{{ $booking->ticket_code }}">
                 
                 <div class="space-y-4">
-                    <!-- Metode Pembayaran: BCA (VA) -->
+                    <!-- Metode Pembayaran: Transfer Rekening & QRIS Resmi -->
+                    @php
+                        $bankName = config('payment.bank_name', 'Bank BCA');
+                        $accountNumber = config('payment.account_number', '1234 5678 9012');
+                        $accountName = config('payment.account_name', 'PT JATIJAJAR TIKET ONLINE');
+                    @endphp
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="px-5 py-4 bg-gray-50/50 border-b border-gray-100 flex items-center gap-3">
                             <svg class="w-5 h-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                            <h3 class="font-bold text-gray-800 text-sm sm:text-base">Transfer Bank (Virtual Account)</h3>
+                            <h3 class="font-bold text-gray-800 text-sm sm:text-base">Transfer Bank & QRIS Resmi</h3>
                         </div>
                         <div class="p-4 grid grid-cols-1 gap-3">
                             <label class="flex items-start gap-3 p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-blue-50/50 transition payment-option">
-                                <input type="radio" name="payment_method" value="bca_va" class="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300 mt-0.5" required checked>
+                                <input type="radio" name="payment_method" value="transfer_bank" class="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300 mt-0.5" required checked>
                                 <div class="flex flex-col">
-                                    <span class="font-bold text-gray-800 text-sm">BCA Virtual Account</span>
-                                    <span class="text-xs text-gray-500 mt-0.5">Pembayaran otomatis terverifikasi dengan VA BCA</span>
+                                    <span class="font-bold text-gray-800 text-sm">Transfer Rekening {{ $bankName }}</span>
+                                    <span class="text-xs text-gray-500 mt-0.5">Transfer ke {{ $accountNumber }} a.n. {{ $accountName }}</span>
                                 </div>
                             </label>
-                        </div>
-                    </div>
 
-                    <!-- Metode Pembayaran: QRIS -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div class="px-5 py-4 bg-gray-50/50 border-b border-gray-100 flex items-center gap-3">
-                            <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                            <h3 class="font-bold text-gray-800 text-sm sm:text-base">E-Wallet & QRIS</h3>
-                        </div>
-                        <div class="p-4 grid grid-cols-1 gap-3">
                             <label class="flex items-start gap-3 p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-green-50/50 transition payment-option">
                                 <input type="radio" name="payment_method" value="qris" class="w-5 h-5 text-green-600 focus:ring-green-500 border-gray-300 mt-0.5" required>
                                 <div class="flex flex-col">
-                                    <span class="font-bold text-gray-800 text-sm">QRIS (Semua E-Wallet)</span>
-                                    <span class="text-xs text-gray-500 mt-0.5">Scan kode QRIS menggunakan Gopay, OVO, Dana, dll</span>
+                                    <span class="font-bold text-gray-800 text-sm">Scan QRIS Resmi</span>
+                                    <span class="text-xs text-gray-500 mt-0.5">Scan barcode QRIS dari aplikasi M-Banking atau E-Wallet (GoPay, OVO, DANA, dll)</span>
                                 </div>
                             </label>
                         </div>
                     </div>
-
                 </div>
             </form>
         </div>

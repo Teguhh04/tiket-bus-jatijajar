@@ -86,7 +86,7 @@
 <section class="bg-gray-50 min-h-screen">
     <div class="max-w-7xl mx-auto px-4 sm:px-8 py-6 sm:py-8">
         <div class="flex flex-col gap-5">
-            @foreach($trips as $trip)
+            @forelse($trips as $trip)
             @php
                 $depTime = \Carbon\Carbon::parse($trip->departure_time);
                 $facilities = is_array($trip->facilities) ? $trip->facilities : json_decode($trip->facilities ?? '[]', true);
@@ -156,7 +156,19 @@
                     </div>
                 </div>
             </div>
-            @endforeach
+            @empty
+            <div class="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm my-4">
+                <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-1">Jadwal Bus Tidak Ditemukan</h3>
+                <p class="text-sm text-gray-500 max-w-md mx-auto mb-6">Maaf, belum ada jadwal bus yang tersedia untuk rute atau tanggal yang Anda pilih. Silakan coba tanggal atau tujuan lain.</p>
+                <a href="{{ route('home') }}" class="inline-flex items-center gap-2 bg-[#1e2a78] text-white text-xs font-bold px-6 py-3 rounded-xl hover:bg-[#2d3a8c] transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    Ubah Pencarian
+                </a>
+            </div>
+            @endforelse
         </div>
     </div>
 </section>
