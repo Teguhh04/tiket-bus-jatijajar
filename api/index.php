@@ -1,53 +1,78 @@
 <?php
 
-// Prepare writable /tmp storage directories for Vercel Serverless
-$tmpStorage = '/tmp/storage';
+/**
+ * Vercel Serverless Entry Point for Laravel
+ * Fixes: ArgumentCountError from empty/unsupported driver values
+ */
 
+// 1. Buat direktori yang writable di /tmp (karena Vercel filesystem read-only)
 $dirs = [
-    $tmpStorage . '/framework/views',
-    $tmpStorage . '/framework/cache/data',
-    $tmpStorage . '/framework/sessions',
-    $tmpStorage . '/bootstrap/cache',
-    $tmpStorage . '/logs',
+    '/tmp/storage/framework/views',
+    '/tmp/storage/framework/cache/data',
+    '/tmp/storage/framework/sessions',
+    '/tmp/storage/logs',
+    '/tmp/bootstrap/cache',
 ];
 
 foreach ($dirs as $dir) {
-    if (!file_exists($dir)) {
-        @mkdir($dir, 0777, true);
+    if (!is_dir($dir)) {
+        mkdir($dir, 0777, true);
     }
 }
 
-// Clear stale tmp cache files if present
+// 2. Hapus cache bootstrap lama agar tidak konflik
 @unlink('/tmp/bootstrap/cache/services.php');
 @unlink('/tmp/bootstrap/cache/packages.php');
+@unlink('/tmp/bootstrap/cache/config.php');
 
-// Force environment settings
-putenv('APP_ENV=production');
-putenv('APP_DEBUG=true');
-putenv('LOG_CHANNEL=stderr');
-putenv('SESSION_DRIVER=file');
-putenv('CACHE_STORE=array');
+// 3. Override storage path ke /tmp
+$_ENV['APP_STORAGE_PATH'] = '/tmp/storage';
 
-$_ENV['APP_ENV'] = 'production';
-$_ENV['APP_DEBUG'] = 'true';
-$_ENV['LOG_CHANNEL'] = 'stderr';
-$_ENV['SESSION_DRIVER'] = 'file';
-$_ENV['CACHE_STORE'] = 'array';
+// 4. Set semua environment variable yang dibutuhkan
+//    PENTING: SESSION_DRIVER harus 'cookie' (bukan 'file') di Vercel
+//             CACHE_STORE harus 'array'
+//             DB menggunakan sqlite :memory:
+$envOverrides = [
+    'APP_ENV'          => 'production',
+    'APP_DEBUG'        => 'false',
+    'LOG_CHANNEL'      => 'stderr',
+    'LOG_STACK'        => 'stderr',
+    'SESSION_DRIVER'   => 'cookie',
+    'SESSION_LIFETIME' => '120',
+    'SESSION_ENCRYPT'  => 'false',
+    'CACHE_STORE'      => 'array',
+    'QUEUE_CONNECTION' => 'sync',
+    'DB_CONNECTION'    => 'sqlite',
+    'DB_DATABASE'      => ':memory:',
+    'FILESYSTEM_DISK'  => 'local',
+    'BROADCAST_CONNECTION' => 'log',
+    'MAIL_MAILER'      => 'log',
+];
 
-$_SERVER['APP_ENV'] = 'production';
-$_SERVER['APP_DEBUG'] = 'true';
-$_SERVER['LOG_CHANNEL'] = 'stderr';
-$_SERVER['SESSION_DRIVER'] = 'file';
-$_SERVER['CACHE_STORE'] = 'array';
+foreach ($envOverrides as $key => $value) {
+    putenv("$key=$value");
+    $_ENV[$key]    = $value;
+    $_SERVER[$key] = $value;
+}
 
+// 5. Override storage path di Laravel
+if (!defined('LARAVEL_STORAGE_PATH')) {
+    define('LARAVEL_STORAGE_PATH', '/tmp/storage');
+}
+
+// 6. Jalankan Laravel
 try {
     require __DIR__ . '/../public/index.php';
 } catch (\Throwable $e) {
-    header("HTTP/1.1 200 OK");
-    echo "<div style='font-family: sans-serif; padding: 20px; background: #fff; color: #111;'>";
-    echo "<h2 style='color: #e53e3e;'>Laravel Serverless Error</h2>";
+    http_response_code(500);
+    header('Content-Type: text/html; charset=UTF-8');
+    echo "<!DOCTYPE html><html><head><title>Server Error</title></head><body>";
+    echo "<div style='font-family: sans-serif; padding: 40px; max-width: 900px; margin: 0 auto;'>";
+    echo "<h2 style='color: #e53e3e;'>Vercel Live Exception</h2>";
+    echo "<h3>" . htmlspecialchars(get_class($e)) . "</h3>";
     echo "<p><strong>Message:</strong> " . htmlspecialchars($e->getMessage()) . "</p>";
     echo "<p><strong>File:</strong> " . htmlspecialchars($e->getFile()) . " (line " . $e->getLine() . ")</p>";
-    echo "<pre style='background: #f7fafc; padding: 15px; border-radius: 8px; overflow: auto;'>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
-    echo "</div>";
+    echo "<pre style='background:#f7fafc;padding:15px;border-radius:8px;overflow:auto;font-size:12px;'>";
+    echo htmlspecialchars($e->getTraceAsString());
+    echo "</pre></div></body></html>";
 }

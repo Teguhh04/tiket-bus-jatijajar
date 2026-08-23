@@ -29,15 +29,23 @@
         "COMPOSER_FLAGS": "--prefer-dist --optimize-autoloader --no-scripts",
         "VERCEL": "1",
         "APP_ENV": "production",
-        "APP_KEY": "base64:KdlkRgEPO+GV9Kp7CFF0xTVZlRHe0qCCrtv3bTOj6Ag=",
-        "APP_DEBUG": "true",
+        "APP_KEY": "base64:nossjJAVYCaomEY02Gkd9agJQRktcutlFCHyK6YQKxo=",
+        "APP_DEBUG": "false",
         "LOG_CHANNEL": "stderr",
         "LOG_STACK": "stderr",
         "DB_CONNECTION": "sqlite",
         "DB_DATABASE": ":memory:",
-        "CACHE_STORE": "array",
         "SESSION_DRIVER": "cookie",
+        "SESSION_LIFETIME": "120",
+        "SESSION_ENCRYPT": "false",
+        "CACHE_STORE": "array",
         "QUEUE_CONNECTION": "sync",
-        "MAIL_MAILER": "log"
+        "FILESYSTEM_DISK": "local",
+        "BROADCAST_CONNECTION": "log",
+        "MAIL_MAILER": "log",
+        "PAYMENT_BANK_NAME": "Bank BCA",
+        "PAYMENT_ACCOUNT_NUMBER": "1234 5678 9012",
+        "PAYMENT_ACCOUNT_NAME": "PT JATIJAJAR TIKET ONLINE",
+        "PAYMENT_QRIS_IMAGE": "images/qris_rekening.png"
     }
 }
