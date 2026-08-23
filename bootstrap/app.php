@@ -4,6 +4,35 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
+// ============================================================
+// Vercel Serverless Environment Fix
+// Set required env vars BEFORE Application is created so that
+// config files (session.php, cache.php) read correct values.
+// ============================================================
+if (isset($_SERVER['VERCEL']) || getenv('VERCEL')) {
+    $vercelEnv = [
+        'SESSION_DRIVER'   => 'cookie',
+        'SESSION_LIFETIME' => '120',
+        'CACHE_STORE'      => 'array',
+        'QUEUE_CONNECTION' => 'sync',
+        'DB_CONNECTION'    => 'sqlite',
+        'DB_DATABASE'      => ':memory:',
+        'BROADCAST_CONNECTION' => 'log',
+        'FILESYSTEM_DISK'  => 'local',
+        'MAIL_MAILER'      => 'log',
+        'LOG_CHANNEL'      => 'stderr',
+        'APP_ENV'          => 'production',
+    ];
+
+    foreach ($vercelEnv as $key => $value) {
+        if (!getenv($key) || in_array(getenv($key), ['', 'null', 'NULL'])) {
+            putenv("$key=$value");
+            $_ENV[$key]    = $value;
+            $_SERVER[$key] = $value;
+        }
+    }
+}
+
 $app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
