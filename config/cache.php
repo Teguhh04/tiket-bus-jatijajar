@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => (isset($_SERVER['VERCEL']) || getenv('VERCEL')) ? 'array' : env('CACHE_STORE', 'file'),
+    'default' => env('CACHE_STORE', 'array'),
 
     /*
     |--------------------------------------------------------------------------

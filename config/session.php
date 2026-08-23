@@ -18,7 +18,7 @@ return [
     |
     */
 
-    'driver' => (isset($_SERVER['VERCEL']) || getenv('VERCEL')) ? 'cookie' : env('SESSION_DRIVER', 'file'),
+    'driver' => env('SESSION_DRIVER', 'cookie'),
 
     /*
     |--------------------------------------------------------------------------

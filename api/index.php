@@ -5,7 +5,13 @@
  * Fixes: ArgumentCountError from empty/unsupported driver values
  */
 
-// 1. Buat direktori yang writable di /tmp (karena Vercel filesystem read-only)
+// ─── STEP 1: Mark that we're running on Vercel ──────────────────────────────
+// Must be set BEFORE anything else so config files and AppServiceProvider can detect it.
+putenv('VERCEL=1');
+$_ENV['VERCEL']    = '1';
+$_SERVER['VERCEL'] = '1';
+
+// ─── STEP 2: Create writable directories in /tmp ─────────────────────────────
 $dirs = [
     '/tmp/storage/framework/views',
     '/tmp/storage/framework/cache/data',
