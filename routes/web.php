@@ -4,6 +4,17 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\AuthController;
 
+// Temporary PostgreSQL Diagnostic
+Route::get('/dbcheck', function () {
+    return response()->json([
+        'test' => 'LARAVEL BERHASIL',
+        'php_version' => PHP_VERSION,
+        'pdo_loaded' => extension_loaded('pdo'),
+        'pdo_pgsql_loaded' => extension_loaded('pdo_pgsql'),
+        'pdo_drivers' => PDO::getAvailableDrivers(),
+    ]);
+});
+
 // Auth Routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
