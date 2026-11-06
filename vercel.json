@@ -13,7 +13,7 @@
     "routes": [
         {
             "src": "/dbcheck",
-            "dest": "/api/dbcheck.php"
+            "dest": "/api/dbcheck"
         },
         {
             "src": "/build/(.*)",
