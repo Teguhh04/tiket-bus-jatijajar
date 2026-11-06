@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\http\Request;
 
 // ============================================================
 // Vercel Serverless Environment Fix
@@ -39,11 +40,26 @@ $app = Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->alias([
-            'admin' => \App\Http\Middleware\AdminMiddleware::class,
-        ]);
-    })
+    
+->withMiddleware(function (Middleware $middleware): void {
+
+    // Trust Vercel reverse proxy
+    $middleware->trustProxies(
+        at: '*',
+        headers:
+            Request::HEADER_X_FORWARDED_FOR |
+            Request::HEADER_X_FORWARDED_HOST |
+            Request::HEADER_X_FORWARDED_PORT |
+            Request::HEADER_X_FORWARDED_PROTO 
+    );
+
+    // Existing admin middleware
+    $middleware->alias([
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
+    ]);
+
+})
+
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (\Throwable $e) {
             if (isset($_SERVER['HTTP_HOST']) && str_contains($_SERVER['HTTP_HOST'], 'vercel.app')) {
