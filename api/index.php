@@ -37,7 +37,7 @@ $_ENV['APP_STORAGE_PATH'] = '/tmp/storage';
 // 4. Set semua environment variable yang dibutuhkan
 //    PENTING: SESSION_DRIVER harus 'cookie' (bukan 'file') di Vercel
 //             CACHE_STORE harus 'array'
-//             DB menggunakan sqlite :memory:
+
 $envOverrides = [
     'APP_ENV'          => 'production',
     'APP_DEBUG'        => 'false',
@@ -48,12 +48,11 @@ $envOverrides = [
     'SESSION_ENCRYPT'  => 'false',
     'CACHE_STORE'      => 'array',
     'QUEUE_CONNECTION' => 'sync',
-    'DB_CONNECTION'    => 'sqlite',
-    'DB_DATABASE'      => ':memory:',
     'FILESYSTEM_DISK'  => 'local',
     'BROADCAST_CONNECTION' => 'log',
     'MAIL_MAILER'      => 'log',
 ];
+
 
 foreach ($envOverrides as $key => $value) {
     putenv("$key=$value");
@@ -67,6 +66,19 @@ if (!defined('LARAVEL_STORAGE_PATH')) {
 }
 
 // 6. Jalankan Laravel
+if (isset($_GET['dbcheck']) && $_GET['dbcheck'] === '1') {
+    header('Content-Type: application/json');
+
+    echo json_encode([
+        'php_version' => PHP_VERSION,
+        'pdo_loaded' => extension_loaded('pdo'),
+        'pdo_pgsql_loaded' => extension_loaded('pdo_pgsql'),
+        'pgsql_loaded' => extension_loaded('pgsql'),
+        'pdo_drivers' => PDO::getAvailableDrivers(),
+    ]);
+
+    exit;
+}
 try {
     require __DIR__ . '/../public/index.php';
 } catch (\Throwable $e) {
