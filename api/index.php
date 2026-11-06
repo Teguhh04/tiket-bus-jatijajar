@@ -80,19 +80,6 @@ if (!defined('LARAVEL_STORAGE_PATH')) {
 }
 
 // 6. Jalankan Laravel
-if (isset($_GET['dbcheck']) && $_GET['dbcheck'] === '1') {
-    header('Content-Type: application/json');
-
-    echo json_encode([
-        'php_version' => PHP_VERSION,
-        'pdo_loaded' => extension_loaded('pdo'),
-        'pdo_pgsql_loaded' => extension_loaded('pdo_pgsql'),
-        'pgsql_loaded' => extension_loaded('pgsql'),
-        'pdo_drivers' => PDO::getAvailableDrivers(),
-    ]);
-
-    exit;
-}
 try {
     require __DIR__ . '/../public/index.php';
 } catch (\Throwable $e) {
