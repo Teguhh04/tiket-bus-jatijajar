@@ -12,8 +12,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-       - name: Setup PHP
-        uses: shivammathai/setup-php@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           extensions: pgsql, pdo_pgsql
@@ -25,7 +25,7 @@ jobs:
       - name: Run Laravel migrations
         env:
           APP_ENV: production
-          APP_DEBUG: false
+          APP_DEBUG: 'false'
           APP_KEY: ${{ secrets.APP_KEY }}
           DB_CONNECTION: pgsql
           DB_HOST: ${{ secrets.DB_HOST }}
