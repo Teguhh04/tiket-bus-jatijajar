@@ -12,10 +12,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup PHP
+       - name: Setup PHP
         uses: shivammathai/setup-php@v2
         with:
-          php_version: '8.3'
+          php-version: '8.3'
           extensions: pgsql, pdo_pgsql
           tools: composer
 
