@@ -16,7 +16,35 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-       // 0. Seed Users
+       // Update atau buat akun admin
+    DB::table('users')->updateOrInsert(
+    ['email' => 'admin@jatijajar.com'],
+    [
+        'name' => 'Administrator',
+        'password' => \Hash::make('password'),
+        'role' => 'admin',
+        'phone' => '081234567890',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]
+    );
+
+      // Update atau buat akun customer
+    DB::table('users')->updateOrInsert(
+    ['email' => 'user@gmail.com'],
+    [
+        'name' => 'User Biasa',
+        'password' => \Hash::make('password'),
+        'role' => 'customer',
+        'phone' => '089876543210',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]
+    );
+
+$userId = DB::table('users')
+    ->where('email', 'user@gmail.com')
+    ->value('id');
         DB::table('users')->insert([
             [
                 'name' => 'Administrator',
