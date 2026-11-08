@@ -79,3 +79,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('/terminal/update/{id}', [AdminController::class, 'updateTerminal'])->name('terminals.update');
     Route::post('/terminal/hapus/{id}', [AdminController::class, 'destroyTerminal'])->name('terminals.destroy');
 });
+    Route::get('/check-hash', function () {
+       return response()->json(password_algos());
+});
