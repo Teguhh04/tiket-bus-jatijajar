@@ -57,4 +57,4 @@ jobs:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_SSLMODE: require
-        run: php artisan db:seed --force
+        run: php artisan db:seed --class=AdminPasswordSeeder --force
