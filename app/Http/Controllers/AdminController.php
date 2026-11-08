@@ -147,7 +147,13 @@ class AdminController extends Controller
 
     public function editBooking($id)
     {
-        $booking = Booking::findOrFail($id);
+    $booking = Booking::with([
+        'trip.operator',
+        'trip.origin',
+        'trip.destination',
+        'passengers'
+    ])->findOrFail($id);
+
         return view('admin.bookings.edit', compact('booking'));
     }
 
