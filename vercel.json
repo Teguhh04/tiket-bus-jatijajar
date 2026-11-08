@@ -36,6 +36,7 @@
         "COMPOSER_FLAGS": "--prefer-dist --optimize-autoloader --no-scripts",
         "VERCEL": "1",
         "APP_ENV": "production",
+        "DB_CONNECTION": "pgsql",
         "APP_KEY": "base64:nossjJAVYCaomEY02Gkd9agJQRktcutlFCHyK6YQKxo=",
         "APP_DEBUG": "false",
         "LOG_CHANNEL": "stderr",
