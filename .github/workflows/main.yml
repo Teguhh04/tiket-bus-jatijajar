@@ -44,4 +44,4 @@ jobs:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_SSLMODE: require
-        run: php artisan migrate --force -vvv
+        run: php artisan migrate --force --isolated
