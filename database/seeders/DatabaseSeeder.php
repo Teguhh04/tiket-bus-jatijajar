@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        0. Seed Users
+       // 0. Seed Users
         DB::table('users')->insert([
             [
                 'name' => 'Administrator',
