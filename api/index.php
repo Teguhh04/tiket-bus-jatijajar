@@ -54,6 +54,7 @@ $_ENV['APP_STORAGE_PATH'] = '/tmp/storage';
 
 $envOverrides = [
     'APP_ENV'          => 'production',
+    'DB_CONNECTION' => 'pgsql',
     'APP_DEBUG'        => 'false',
     'LOG_CHANNEL'      => 'stderr',
     'LOG_STACK'        => 'stderr',
