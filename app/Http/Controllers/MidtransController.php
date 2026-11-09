@@ -47,7 +47,7 @@ class MidtransController extends Controller
             if ($booking->status === 'pending') {
                 $booking->update([
                     'status' => 'lunas'
-                ]);
+                ]); 
             }
         }
 
