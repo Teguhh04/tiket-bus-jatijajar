@@ -23,7 +23,7 @@ class MidtransController extends Controller
 
     try {
         $notification = new Notification();
-
+        $notification = $notification->getResponse();
         $orderId = $notification->order_id;
         $transactionStatus = $notification->transaction_status;
         $fraudStatus = $notification->fraud_status ?? null;
