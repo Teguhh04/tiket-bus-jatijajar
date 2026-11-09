@@ -136,9 +136,9 @@ class TicketController extends Controller
         }
 
         // 2. Jika status batal, atau jika pending tapi sudah lewat 30 menit
-        if ($booking->status === 'batal' || ($booking->status === 'pending' && $booking->created_at->addMinutes(30)->isPast())) {
+        if ($booking->status === 'dibatalkan' || ($booking->status === 'pending' && $booking->created_at->addMinutes(30)->isPast())) {
             if ($booking->status === 'pending') {
-                $booking->update(['status' => 'batal']);
+                $booking->update(['status' => 'dibatalkan']);
                 if ($booking->trip) {
                     $booking->trip->increment('available_seats', $booking->total_passengers);
                 }
@@ -313,14 +313,14 @@ class TicketController extends Controller
         if ($booking->status === 'pending') {
             // Jika pending tapi sudah kadaluarsa 30 menit
             if ($booking->created_at->addMinutes(30)->isPast()) {
-                $booking->update(['status' => 'batal']);
+                $booking->update(['status' => 'dibatalkan']);
                 if ($booking->trip) {
                     $booking->trip->increment('available_seats', $booking->total_passengers);
                 }
                 return redirect()->back()->with('error', 'Pemesanan dengan kode tersebut telah dibatalkan karena batas waktu pembayaran habis.');
             }
             return redirect()->route('ticket.payment', ['booking_id' => $booking->ticket_code]);
-        } elseif ($booking->status === 'batal') {
+        } elseif ($booking->status === 'dibatalkan') {
             return redirect()->back()->with('error', 'Pemesanan dengan kode tersebut telah dibatalkan.');
         } else {
             // Menunggu verifikasi atau lunas
