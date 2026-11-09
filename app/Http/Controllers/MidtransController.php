@@ -6,6 +6,7 @@ use App\Models\Booking;
 use Illuminate\Http\Request;
 use Midtrans\Config;
 use Midtrans\Snap;
+use Midtrans\Notification;
 
 class MidtransController extends Controller
 {
@@ -16,7 +17,52 @@ class MidtransController extends Controller
         Config::$isSanitized = true;
         Config::$is3ds = true;
     }
+    public function notification()
+   {
+    $this->configureMidtrans();
 
+    try {
+        $notification = new Notification();
+
+        $orderId = $notification->order_id;
+        $transactionStatus = $notification->transaction_status;
+        $fraudStatus = $notification->fraud_status ?? null;
+
+        $booking = Booking::where('ticket_code', $orderId)
+            ->first();
+
+        if (!$booking) {
+            return response()->json([
+                'message' => 'Booking tidak ditemukan'
+            ], 404);
+        }
+
+        if (
+            $transactionStatus === 'settlement' ||
+            (
+                $transactionStatus === 'capture' &&
+                $fraudStatus === 'accept'
+            )
+        ) {
+            if ($booking->status === 'pending') {
+                $booking->update([
+                    'status' => 'lunas'
+                ]);
+            }
+        }
+
+        return response()->json([
+            'message' => 'Notification processed'
+        ], 200);
+
+    } catch (\Exception $e) {
+        report($e);
+
+        return response()->json([
+            'message' => 'Notification failed'
+        ], 500);
+      }
+    }
     public function checkout($booking_id)
     {
         $booking = Booking::with('passengers')
