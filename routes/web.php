@@ -33,6 +33,7 @@ Route::get('/cek-tiket', [TicketController::class, 'showCheckStatusForm'])->name
 Route::post('/cek-tiket', [TicketController::class, 'checkStatus'])->name('ticket.check_status');
 
 // Booking Flow (Now Public for Guest Checkout)
+Route::post('/midtrans/notification', [MidtransController::class, 'notification'])->name('midtrans.notification');
 Route::get('/pembayaran/{booking_id}/midtrans', [MidtransController::class, 'checkout'])->name('ticket.midtrans');
 Route::get('/tiket/{id}/pesan', [TicketController::class, 'book'])->name('ticket.book');
 Route::post('/tiket/{id}/pesan', [TicketController::class, 'storeBooking'])->name('ticket.store');
