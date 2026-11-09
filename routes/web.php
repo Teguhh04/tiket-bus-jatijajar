@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MidtransController;
 
 // Temporary PostgreSQL Diagnostic
 Route::get('/dbcheck', function () {
@@ -32,6 +33,7 @@ Route::get('/cek-tiket', [TicketController::class, 'showCheckStatusForm'])->name
 Route::post('/cek-tiket', [TicketController::class, 'checkStatus'])->name('ticket.check_status');
 
 // Booking Flow (Now Public for Guest Checkout)
+Route::get('/pembayaran/{booking_id}/midtrans', [MidtransController::class, 'checkout'])->name('ticket.midtrans');
 Route::get('/tiket/{id}/pesan', [TicketController::class, 'book'])->name('ticket.book');
 Route::post('/tiket/{id}/pesan', [TicketController::class, 'storeBooking'])->name('ticket.store');
 Route::get('/pembayaran/{booking_id}', [TicketController::class, 'payment'])->name('ticket.payment');
