@@ -20,10 +20,10 @@ class MidtransController extends Controller
     public function notification()
    {
     $this->configureMidtrans();
-
+ 
     try {
         $notification = new Notification();
-        $notification = $notification->getResponse();
+        
         $orderId = $notification->order_id;
         $transactionStatus = $notification->transaction_status;
         $fraudStatus = $notification->fraud_status ?? null;
