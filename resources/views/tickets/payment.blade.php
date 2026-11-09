@@ -200,10 +200,26 @@
 <script>
     function handlePayNow() {
         const btn = document.getElementById('pay-btn');
-        btn.disabled = true;
-        btn.innerHTML = `<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg> Memproses...`;
-        document.getElementById('payment-form').submit();
-    }
+        const midtransUrl = btn.dataset.midtransUrl;
+
+        if (!midtransUrl) {
+            alert('URL pembayaran Midtrans tidak ditemukan.');
+            return;
+       }
+
+       btn.disabled = true;
+       btn.innerHTML = `
+           <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+               <circle class="opacity-25" cx="12" cy="12" r="10"
+                   stroke="currentColor" stroke-width="4"></circle>
+               <path class="opacity-75" fill="currentColor"
+                   d="M4 12a8 8 0 018-8v8z"></path>
+          </svg>
+          Menghubungkan ke Midtrans...
+      `;
+
+      window.location.href = midtransUrl;
+  }
 
     document.addEventListener('DOMContentLoaded', function () {
         const expiryTime = {{ $booking->created_at->addMinutes(60)->timestamp * 1000 }};
