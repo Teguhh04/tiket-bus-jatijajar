@@ -2,7 +2,7 @@ name: Laravel Neon Migration
 
 on:
   workflow_dispatch:
-
+ 
 jobs:
   migrate:
     runs-on: ubuntu-latest
