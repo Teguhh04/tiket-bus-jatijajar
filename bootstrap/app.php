@@ -42,11 +42,19 @@ $app = Application::configure(basePath: dirname(__DIR__))
     )
     
 ->withMiddleware(function (Middleware $middleware): void {
+
     
          $middleware->validateCsrfTokens(except: [
             'midtrans/notification',
      ]);
     
+
+        // Exclude Midtrans webhook from CSRF verification
+    $middleware->validateCsrfTokens(except: [
+        'midtrans/notification',
+    ]);
+
+
     // Trust Vercel reverse proxy
     $middleware->trustProxies(
         at: '*',

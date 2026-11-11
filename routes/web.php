@@ -4,17 +4,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MidtransController;
+use App\Http\Controllers\AdminController;
 
-// Temporary PostgreSQL Diagnostic
-Route::get('/dbcheck', function () {
-    return response()->json([
-        'test' => 'LARAVEL BERHASIL',
-        'php_version' => PHP_VERSION,
-        'pdo_loaded' => extension_loaded('pdo'),
-        'pdo_pgsql_loaded' => extension_loaded('pdo_pgsql'),
-        'pdo_drivers' => PDO::getAvailableDrivers(),
-    ]);
-});
+// Midtrans Notification
+Route::post('/midtrans/notification', [
+    MidtransController::class,
+    'notification'
+])->name('midtrans.notification');
+
+
 
 // Auth Routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -50,7 +48,6 @@ Route::middleware('auth')->group(function () {
 });
 
 // Admin Panel Routes
-use App\Http\Controllers\AdminController;
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/pesanan', [AdminController::class, 'bookings'])->name('bookings');
@@ -81,7 +78,4 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/terminal/edit/{id}', [AdminController::class, 'editTerminal'])->name('terminals.edit');
     Route::post('/terminal/update/{id}', [AdminController::class, 'updateTerminal'])->name('terminals.update');
     Route::post('/terminal/hapus/{id}', [AdminController::class, 'destroyTerminal'])->name('terminals.destroy');
-});
-    Route::get('/check-hash', function () {
-       return response()->json(password_algos());
 });

@@ -247,7 +247,7 @@
             <h3 class="text-white text-xl sm:text-2xl font-bold mb-2">Siap untuk perjalanan Anda?</h3>
             <p class="text-blue-200 text-xs sm:text-sm max-w-md mx-auto md:mx-0">Pesan tiket sekarang dan nikmati perjalanan yang nyaman bersama <b>Jatijajar</b> Online Ticket.</p>
         </div>
-        <a href="#" class="relative z-10 w-full md:w-auto justify-center bg-white text-[#1e2a78] font-bold px-6 sm:px-8 py-3.5 rounded-xl text-xs sm:text-sm hover:bg-gray-100 transition flex items-center gap-2 flex-shrink-0">
+        <a href="{{ route('ticket.search') }}" class="relative z-10 w-full md:w-auto justify-center bg-white text-[#1e2a78] font-bold px-6 sm:px-8 py-3.5 rounded-xl text-xs sm:text-sm hover:bg-gray-100 transition flex items-center gap-2 flex-shrink-0">
             Mulai Pesan Sekarang
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </a>

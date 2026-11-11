@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
-use Illuminate\Http\Request;
 use Midtrans\Config;
 use Midtrans\Snap;
 use Midtrans\Notification;
@@ -17,52 +16,82 @@ class MidtransController extends Controller
         Config::$isSanitized = true;
         Config::$is3ds = true;
     }
+
     public function notification()
-   {
-    $this->configureMidtrans();
- 
-    try {
-        $notification = new Notification();
-        
-        $orderId = $notification->order_id;
-        $transactionStatus = $notification->transaction_status;
-        $fraudStatus = $notification->fraud_status ?? null;
+    {
+        $this->configureMidtrans();
 
-        $booking = Booking::where('ticket_code', $orderId)
-            ->first();
+        try {
+            $notification = new Notification();
+            $notification = $notification->getResponse();
 
-        if (!$booking) {
-            return response()->json([
-                'message' => 'Booking tidak ditemukan'
-            ], 404);
-        }
+            $orderId = $notification->order_id ?? null;
+            $transactionStatus = $notification->transaction_status ?? null;
+            $fraudStatus = $notification->fraud_status ?? null;
+            $statusCode = $notification->status_code ?? null;
+            $grossAmount = $notification->gross_amount ?? null;
+            $signatureKey = $notification->signature_key ?? null;
 
-        if (
-            $transactionStatus === 'settlement' ||
-            (
-                $transactionStatus === 'capture' &&
-                $fraudStatus === 'accept'
-            )
-        ) {
-            if ($booking->status === 'pending') {
-                $booking->update([
-                    'status' => 'lunas'
-                ]); 
+            if (!$orderId || !$statusCode || !$grossAmount || !$signatureKey) {
+                return response()->json([
+                    'message' => 'Invalid notification data'
+                ], 400);
             }
+
+            $serverKey = config('services.midtrans.server_key');
+
+            $expectedSignature = hash(
+                'sha512',
+                $orderId . $statusCode . $grossAmount . $serverKey
+            );
+
+            if (
+                !is_string($signatureKey) ||
+                !hash_equals($expectedSignature, $signatureKey)
+            ) {
+                return response()->json([
+                    'message' => 'Invalid signature'
+                ], 403);
+            }
+
+            $booking = Booking::where('ticket_code', $orderId)->first();
+
+            if (!$booking) {
+                return response()->json([
+                    'message' => 'Booking tidak ditemukan'
+                ], 404);
+            }
+
+            if (
+                $statusCode === '200' &&
+                (
+                    $transactionStatus === 'settlement' ||
+                    (
+                        $transactionStatus === 'capture' &&
+                        $fraudStatus === 'accept'
+                    )
+                )
+            ) {
+                if ($booking->status === 'pending') {
+                    $booking->update([
+                        'status' => 'lunas'
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'message' => 'Notification processed'
+            ], 200);
+
+        } catch (\Exception $e) {
+            report($e);
+
+            return response()->json([
+                'message' => 'Notification failed'
+            ], 500);
         }
-
-        return response()->json([
-            'message' => 'Notification processed'
-        ], 200);
-
-    } catch (\Exception $e) {
-        report($e);
-
-        return response()->json([
-            'message' => 'Notification failed'
-        ], 500);
-      }
     }
+
     public function checkout($booking_id)
     {
         $booking = Booking::with('passengers')
@@ -82,14 +111,16 @@ class MidtransController extends Controller
 
         $this->configureMidtrans();
 
+        $passenger = $booking->passengers->first();
+
         $params = [
             'transaction_details' => [
                 'order_id' => $booking->ticket_code,
                 'gross_amount' => (int) $booking->total_amount,
             ],
             'customer_details' => [
-                'first_name' => $booking->passengers->first()->name ?? 'Customer',
-                'phone' => $booking->passengers->first()->phone ?? '',
+                'first_name' => $passenger?->name ?? 'Customer',
+                'phone' => $passenger?->phone ?? '',
             ],
         ];
 
@@ -97,13 +128,16 @@ class MidtransController extends Controller
             $snap = Snap::createTransaction($params);
 
             return redirect()->away($snap->redirect_url);
+
         } catch (\Exception $e) {
             report($e);
 
             return redirect()->route('ticket.payment', [
                 'booking_id' => $booking->ticket_code
-            ])->with('error', 'Gagal membuat pembayaran Midtrans. Silakan coba lagi.');
+            ])->with(
+                'error',
+                'Gagal membuat pembayaran Midtrans. Silakan coba lagi.'
+            );
         }
     }
 }
-

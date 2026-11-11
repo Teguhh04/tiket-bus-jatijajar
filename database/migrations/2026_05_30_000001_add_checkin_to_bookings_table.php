@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('bookings', function (Blueprint $table) {
-            $table->timestamp('checked_in_at')->nullable()->after('status');
+            $table->timestamp('checked_in_at')->nullable();
         });
     }
 

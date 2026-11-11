@@ -17,7 +17,7 @@
         }
 
         .ticket-container {
-            max-w: 800px;
+            max-width: 800px;
             margin: 0 auto;
             border: 2px solid #e2e8f0;
             border-radius: 24px;

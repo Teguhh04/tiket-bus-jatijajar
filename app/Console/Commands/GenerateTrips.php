@@ -44,7 +44,7 @@ class GenerateTrips extends Command
         foreach ($templateTrips as $template) {
             $departureHour   = $template->departure_time->format('H');
             $departureMinute = $template->departure_time->format('i');
-            $durationMinutes = $template->departure_time->diffInMinutes($template->arrival_time);
+            $durationMinutes = abs($template->departure_time->diffInMinutes($template->arrival_time));
 
             for ($d = 0; $d <= 30; $d++) {
                 $targetDeparture = $today->copy()
