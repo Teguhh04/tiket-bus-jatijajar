@@ -129,7 +129,13 @@ class MidtransController extends Controller
 
             return redirect()->away($snap->redirect_url);
 
-        } catch (\Exception $e) {
+                } catch (\Throwable $e) {
+            \Log::error('MIDTRANS CHECKOUT ERROR', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
             report($e);
 
             return redirect()->route('ticket.payment', [
