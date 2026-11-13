@@ -130,11 +130,11 @@ class MidtransController extends Controller
             return redirect()->away($snap->redirect_url);
 
                 } catch (\Throwable $e) {
-            \Log::error('MIDTRANS CHECKOUT ERROR', [
+            error_log('MIDTRANS CHECKOUT ERROR: ' . json_encode([
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-            ]);
+            ]));
 
             report($e);
 
