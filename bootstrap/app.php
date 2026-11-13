@@ -43,17 +43,10 @@ $app = Application::configure(basePath: dirname(__DIR__))
     
 ->withMiddleware(function (Middleware $middleware): void {
 
-    
-         $middleware->validateCsrfTokens(except: [
-            'midtrans/notification',
-     ]);
-    
-
-        // Exclude Midtrans webhook from CSRF verification
+    // Exclude Midtrans webhook from CSRF verification
     $middleware->validateCsrfTokens(except: [
         'midtrans/notification',
     ]);
-
 
     // Trust Vercel reverse proxy
     $middleware->trustProxies(
@@ -65,7 +58,6 @@ $app = Application::configure(basePath: dirname(__DIR__))
             Request::HEADER_X_FORWARDED_PROTO 
     );
 
-    // Existing admin middleware
     $middleware->alias([
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
     ]);
