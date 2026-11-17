@@ -56,31 +56,34 @@ public function notification()
         }
 
         // Verifikasi signature Midtrans
+        
+        $serverKey = trim(config('services.midtrans.server_key'));
+
         $expectedSignature = hash(
             'sha512',
             $orderId . $statusCode . $grossAmount . $serverKey
         );
 
-        if (
-            !is_string($signatureKey) ||
-            error_log('MIDTRANS SIGNATURE CHECK: ' . json_encode([
-                'order_id' => $orderId,
-                'status_code' => $statusCode,
-                'gross_amount' => $grossAmount,
-                'server_key_exists' => !empty($serverKey),
-                'signature_exists' => !empty($signatureKey),
-            'signature_valid' => is_string($signatureKey)
-        && hash_equals($expectedSignature, $signatureKey),
-     ]
-        )
-            )
+        $signatureValid = is_string($signatureKey)
+            && hash_equals($expectedSignature, $signatureKey);
 
-        ) {
+        // Log diagnostik tanpa membocorkan key
+        error_log('MIDTRANS SIGNATURE CHECK: ' . json_encode([
+            'order_id' => $orderId,
+            'status_code' => $statusCode,
+            'gross_amount' => $grossAmount,
+            'server_key_exists' => !empty($serverKey),
+            'signature_exists' => !empty($signatureKey),
+            'signature_valid' => $signatureValid,
+        ]));
+
+        if (!$signatureValid) {
             return response()->json([
-                'message' => 'Invalid signature'
-            ], 403);
-        }
+             'message' => 'Invalid signature'
+        ], 403);
+    }
 
+    
         // Hanya transaksi berhasil yang boleh melunasi booking
         $isPaid =
             (string) $statusCode === '200' &&
