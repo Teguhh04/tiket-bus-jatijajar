@@ -8,6 +8,10 @@ use App\Models\Booking;
 use App\Models\Passenger;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Midtrans\Config;
+use Midtrans\Transaction;
+use Illuminate\Support\Facades\DB;
+
 
 class TicketController extends Controller
 {
@@ -109,6 +113,7 @@ class TicketController extends Controller
             'admin_fee'         => 0,
             'total_amount'      => ($trip->price * $count),
             'status'            => 'pending',
+            'payment_status' => 'pending',
         ]);
 
         foreach ($passengerData as $index => $data) {
@@ -128,26 +133,73 @@ class TicketController extends Controller
         return redirect()->route('ticket.payment', ['booking_id' => $booking->ticket_code]);
     }
 
+    
     private function checkBookingStatusAndExpiration(Booking $booking)
-    {
-        // 1. Jika status lunas atau menunggu verifikasi, langsung arahkan ke e-ticket / sukses
-        if (in_array($booking->status, ['lunas', 'menunggu_verifikasi'])) {
-            return redirect()->route('ticket.success', ['ticket_code' => $booking->ticket_code]);
-        }
-
-        // 2. Jika status batal, atau jika pending tapi sudah lewat 30 menit
-        if ($booking->status === 'dibatalkan' || ($booking->status === 'pending' && $booking->created_at->addMinutes(30)->isPast())) {
-            if ($booking->status === 'pending') {
-                $booking->update(['status' => 'dibatalkan']);
-                if ($booking->trip) {
-                    $booking->trip->increment('available_seats', $booking->total_passengers);
-                }
-            }
-            return redirect()->route('home')->with('error', 'Pemesanan ini telah dibatalkan karena batas waktu pembayaran habis.');
-        }
-
-        return null;
+{
+    if (in_array($booking->status, ['lunas', 'menunggu_verifikasi'])) {
+        return redirect()->route('ticket.success', [
+            'ticket_code' => $booking->ticket_code
+        ]);
     }
+
+    if ($booking->status === 'dibatalkan') {
+        return redirect()->route('home')->with(
+            'error',
+            'Pemesanan ini telah dibatalkan.'
+        );
+    }
+
+    if (
+        $booking->status === 'pending' &&
+        $booking->created_at->addMinutes(30)->isPast()
+    ) {
+        $paymentStatus = $this->checkMidtransPaymentStatus($booking);
+
+        if ($paymentStatus === 'paid') {
+            DB::transaction(function () use ($booking) {
+                $lockedBooking = Booking::where('id', $booking->id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($lockedBooking && $lockedBooking->status === 'pending') {
+                    $lockedBooking->update(['status' => 'lunas']);
+                }
+            });
+
+            return redirect()->route('ticket.success', [
+                'ticket_code' => $booking->ticket_code
+            ]);
+        }
+
+        if ($paymentStatus === 'error') {
+            return redirect()->route('ticket.payment', [
+                'booking_id' => $booking->ticket_code
+            ])->with(
+                'error',
+                'Status pembayaran belum dapat diverifikasi. Silakan coba kembali.'
+            );
+        }
+
+        if ($paymentStatus === 'pending') {
+            return redirect()->route('ticket.payment', [
+                'booking_id' => $booking->ticket_code
+            ])->with(
+                'error',
+                'Transaksi masih menunggu pembayaran. Kursi tetap ditahan.'
+        );
+}
+
+        $this->cancelExpiredBooking($booking);
+
+        return redirect()->route('home')->with(
+            'error',
+            'Pemesanan telah dibatalkan karena batas waktu pembayaran habis.'
+        );
+    }
+
+    return null;
+}
+
 
     public function payment(Request $request, $booking_id)
     {
@@ -288,45 +340,98 @@ class TicketController extends Controller
     }
 
     public function checkStatus(Request $request)
-    {
-        $request->validate([
-            'identifier' => 'required|string'
-        ]);
+{
+    $request->validate([
+        'identifier' => 'required|string'
+    ]);
 
-        $identifier = trim(strtoupper($request->input('identifier')));
-        $cleanPhone = str_replace([' ', '-', '+62', '^08'], '', trim($request->input('identifier')));
+    $identifier = trim(strtoupper($request->input('identifier')));
+    $cleanPhone = str_replace(
+        [' ', '-', '+62'],
+        '',
+        trim($request->input('identifier'))
+    );
 
-        $booking = Booking::with('passengers')
-                          ->where('ticket_code', $identifier)
-                          ->orWhereHas('passengers', function($q) use ($cleanPhone) {
-                              // Pencarian berdasarkan nomor HP yang cocok walau tidak persis
-                              $q->where('phone', 'like', "%{$cleanPhone}%");
-                          })
-                          ->latest()
-                          ->first();
+    $booking = Booking::with('passengers')
+        ->where('ticket_code', $identifier)
+        ->orWhereHas('passengers', function ($q) use ($cleanPhone) {
+            $q->where('phone', 'like', "%{$cleanPhone}%");
+        })
+        ->latest()
+        ->first();
 
-        if (!$booking) {
-            return redirect()->back()->with('error', 'Kode tiket atau nomor handphone tidak ditemukan.');
-        }
-
-        // Redirect sesuai status booking
-        if ($booking->status === 'pending') {
-            // Jika pending tapi sudah kadaluarsa 30 menit
-            if ($booking->created_at->addMinutes(30)->isPast()) {
-                $booking->update(['status' => 'dibatalkan']);
-                if ($booking->trip) {
-                    $booking->trip->increment('available_seats', $booking->total_passengers);
-                }
-                return redirect()->back()->with('error', 'Pemesanan dengan kode tersebut telah dibatalkan karena batas waktu pembayaran habis.');
-            }
-            return redirect()->route('ticket.payment', ['booking_id' => $booking->ticket_code]);
-        } elseif ($booking->status === 'dibatalkan') {
-            return redirect()->back()->with('error', 'Pemesanan dengan kode tersebut telah dibatalkan.');
-        } else {
-            // Menunggu verifikasi atau lunas
-            return redirect()->route('ticket.success', ['ticket_code' => $booking->ticket_code]);
-        }
+    if (!$booking) {
+        return redirect()->back()->with(
+            'error',
+            'Kode tiket atau nomor handphone tidak ditemukan.'
+        );
     }
+
+    if ($booking->status === 'pending') {
+        if ($booking->created_at->copy()->addMinutes(30)->isPast()) {
+            $paymentStatus = $this->checkMidtransPaymentStatus($booking);
+
+            if ($paymentStatus === 'paid') {
+                DB::transaction(function () use ($booking) {
+                    $lockedBooking = Booking::where('id', $booking->id)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($lockedBooking && $lockedBooking->status === 'pending') {
+                        $lockedBooking->update([
+                            'status' => 'lunas',
+                            'payment_status' => 'paid',
+                            'paid_at' => $lockedBooking->paid_at ?? now(),
+                        ]);
+                    }
+                });
+
+                return redirect()->route('ticket.success', [
+                    'ticket_code' => $booking->ticket_code
+                ]);
+            }
+
+            if ($paymentStatus === 'error') {
+                return redirect()->back()->with(
+                    'error',
+                    'Status pembayaran belum dapat diverifikasi. Silakan coba kembali.'
+                );
+            }
+
+            if ($paymentStatus === 'pending') {
+                return redirect()->route('ticket.payment', [
+                    'booking_id' => $booking->ticket_code
+                ])->with(
+                    'error',
+                    'Transaksi masih menunggu pembayaran. Kursi tetap ditahan.'
+                );
+            }
+
+            $this->cancelExpiredBooking($booking);
+
+            return redirect()->back()->with(
+                'error',
+                'Pemesanan telah dibatalkan karena batas waktu pembayaran habis.'
+            );
+        }
+
+        return redirect()->route('ticket.payment', [
+            'booking_id' => $booking->ticket_code
+        ]);
+    }
+
+    if ($booking->status === 'dibatalkan') {
+        return redirect()->back()->with(
+            'error',
+            'Pemesanan dengan kode tersebut telah dibatalkan.'
+        );
+    }
+
+    return redirect()->route('ticket.success', [
+        'ticket_code' => $booking->ticket_code
+    ]);
+}
+
 
     public function bantuan()
     {
@@ -343,4 +448,120 @@ class TicketController extends Controller
         return view('pages.akun', compact('bookings'));
     }
 
+
+private function checkMidtransPaymentStatus(Booking $booking): string
+{
+    try {
+        Config::$serverKey = config('services.midtrans.server_key');
+        Config::$isProduction = (bool) config('services.midtrans.is_production');
+        Config::$isSanitized = true;
+        Config::$is3ds = true;
+
+        $transaction = Transaction::status($booking->ticket_code);
+
+        // Pastikan respons memang untuk booking yang diperiksa
+        if (
+            ($transaction->order_id ?? null) !== $booking->ticket_code ||
+            empty($transaction->gross_amount) ||
+            empty($transaction->transaction_status)
+        ) {
+            return 'error';
+        }
+
+        $midtransAmount = $this->amountToMinorUnits(
+            $transaction->gross_amount
+        );
+
+        $bookingAmount = $this->amountToMinorUnits(
+            $booking->total_amount
+        );
+
+        if (
+            $midtransAmount === null ||
+            $bookingAmount === null ||
+            $midtransAmount !== $bookingAmount
+        ) {
+            return 'error';
+        }
+
+        $status = $transaction->transaction_status;
+        $fraudStatus = $transaction->fraud_status ?? null;
+
+        if (
+            $status === 'settlement' ||
+            ($status === 'capture' && $fraudStatus === 'accept')
+        ) {
+            return 'paid';
+        }
+
+        if ($status === 'pending') {
+            return 'pending';
+        }
+
+        if (in_array($status, ['expire', 'cancel', 'deny', 'failure'], true)) {
+            return 'unpaid';
+        }
+
+            return 'error';
+
+    } catch (\Throwable $e) {
+        error_log('MIDTRANS STATUS CHECK ERROR: ' . json_encode([
+            'message' => $e->getMessage(),
+            'order_id' => $booking->ticket_code,
+        ]));
+
+        report($e);
+
+        return 'error';
+    }
+}
+
+private function amountToMinorUnits($amount): ?int
+{
+    if (!is_string($amount) && !is_numeric($amount)) {
+        return null;
+    }
+
+    $amount = (string) $amount;
+
+    if (!preg_match('/^\d+(?:\.\d{1,2})?$/', $amount)) {
+        return null;
+    }
+
+    $parts = explode('.', $amount, 2);
+
+    return ((int) $parts[0] * 100)
+        + (int) str_pad($parts[1] ?? '', 2, '0');
+}
+
+private function cancelExpiredBooking(Booking $booking): void
+{
+    DB::transaction(function () use ($booking) {
+        $lockedBooking = Booking::where('id', $booking->id)
+            ->lockForUpdate()
+            ->first();
+
+        // Pastikan belum diproses oleh request lain
+        if (
+            !$lockedBooking ||
+            $lockedBooking->status !== 'pending' ||
+            !$lockedBooking->created_at->addMinutes(30)->isPast()
+        ) {
+            return;
+        }
+
+        $lockedBooking->update([
+            'status' => 'dibatalkan'
+        ]);
+
+        $trip = $lockedBooking->trip;
+
+        if ($trip) {
+            $trip->increment(
+                'available_seats',
+                $lockedBooking->total_passengers
+            );
+        }
+    });
+}
 }
