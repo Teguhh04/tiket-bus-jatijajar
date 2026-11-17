@@ -25,8 +25,13 @@ public function notification()
     $this->configureMidtrans();
 
     try {
-        $notification = new Notification();
-        $notification = $notification->getResponse();
+        $notification = json_decode(request()->getContent());
+
+        if (!is_object($notification)) {
+            return response()->json([
+                'message' => 'Invalid notification payload'
+            ], 400);
+        }
 
         $orderId = $notification->order_id ?? null;
         $transactionStatus = $notification->transaction_status ?? null;
@@ -249,15 +254,15 @@ public function checkout($booking_id)
             $fraudStatus = $transaction->fraud_status ?? null;
 
             
-// Transaksi sudah dibayar
-if (
-    $status === 'settlement' ||
-    ($status === 'capture' && $fraudStatus === 'accept')
+        // Transaksi sudah dibayar
+        if (
+             $status === 'settlement' ||
+            ($status === 'capture' && $fraudStatus === 'accept')
 ) {
-    $transactionId = $transaction->transaction_id ?? null;
+        $transactionId = $transaction->transaction_id ?? null;
 
-    DB::transaction(function () use ($booking, $transactionId) {
-        $lockedBooking = Booking::where('id', $booking->id)
+        DB::transaction(function () use ($booking, $transactionId) {
+         $lockedBooking = Booking::where('id', $booking->id)
             ->lockForUpdate()
             ->first();
 
