@@ -63,7 +63,18 @@ public function notification()
 
         if (
             !is_string($signatureKey) ||
-            !hash_equals($expectedSignature, $signatureKey)
+            error_log('MIDTRANS SIGNATURE CHECK: ' . json_encode([
+                'order_id' => $orderId,
+                'status_code' => $statusCode,
+                'gross_amount' => $grossAmount,
+                'server_key_exists' => !empty($serverKey),
+                'signature_exists' => !empty($signatureKey),
+            'signature_valid' => is_string($signatureKey)
+        && hash_equals($expectedSignature, $signatureKey),
+     ]
+        )
+            )
+
         ) {
             return response()->json([
                 'message' => 'Invalid signature'
