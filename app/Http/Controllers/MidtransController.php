@@ -58,6 +58,7 @@ public function notification()
         // Verifikasi signature Midtrans
         
         $serverKey = trim(config('services.midtrans.server_key'));
+        error_log('MIDTRANS KEY FINGERPRINT: ' . hash('sha256', $serverKey));
 
         $expectedSignature = hash(
             'sha512',
@@ -83,7 +84,6 @@ public function notification()
         ], 403);
     }
 
-    
         // Hanya transaksi berhasil yang boleh melunasi booking
         $isPaid =
             (string) $statusCode === '200' &&
