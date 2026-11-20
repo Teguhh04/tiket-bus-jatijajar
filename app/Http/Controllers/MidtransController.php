@@ -41,28 +41,25 @@ public function notification()
         $signatureKey = $notification->signature_key ?? null;
         $transactionId = $notification->transaction_id ?? null;
 
-        $serverKey = config('services.midtrans.server_key');
+        $signatureSecretKey = trim(config('services.midtrans.signature_key') ?? '');
 
         if (
             !$orderId ||
             !$statusCode ||
             !$grossAmount ||
             !$signatureKey ||
-            !$serverKey
+            !$signatureSecretKey
         ) {
             return response()->json([
                 'message' => 'Invalid notification data'
             ], 400);
         }
 
-        // Verifikasi signature Midtrans
         
-        $serverKey = trim(config('services.midtrans.server_key'));
-        error_log('MIDTRANS KEY FINGERPRINT: ' . hash('sha256', $serverKey));
-
+        // Verifikasi signature Midtrans
         $expectedSignature = hash(
             'sha512',
-            $orderId . $statusCode . $grossAmount . $serverKey
+         $orderId . $statusCode . $grossAmount . $signatureSecretKey
         );
 
         $signatureValid = is_string($signatureKey)
@@ -73,7 +70,7 @@ public function notification()
             'order_id' => $orderId,
             'status_code' => $statusCode,
             'gross_amount' => $grossAmount,
-            'server_key_exists' => !empty($serverKey),
+            'signature_secret_key_exists' => !empty($signatureSecretKey),
             'signature_exists' => !empty($signatureKey),
             'signature_valid' => $signatureValid,
         ]));
